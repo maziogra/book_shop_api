@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "books")
-public class Book {
+public class BookEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "books_seq")
     @SequenceGenerator(
@@ -26,5 +26,5 @@ public class Book {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "author_id")
-    private Author author;
+    private AuthorEntity authorEntity;
 }
