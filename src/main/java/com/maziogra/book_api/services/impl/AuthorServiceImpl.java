@@ -39,4 +39,14 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.findById(id);
     }
 
+    @Override
+    public void delete(Long id) {
+        authorRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean isExists(Long id){
+        return authorRepository.existsById(id);
+    }
+
 }
