@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class AuthorController {
     private final AuthorMapper authorMapper;
@@ -23,8 +25,13 @@ public class AuthorController {
 
     @PostMapping(path = "/authors")
     public ResponseEntity<AuthorDTO> createAuthor(@RequestBody AuthorDTO authorDTO){
-
         AuthorEntity authorEntity = authorServiceImpl.save(authorMapper.mapFrom(authorDTO));
         return new ResponseEntity<>(authorMapper.mapTo(authorEntity), HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/authors")
+    public List<AuthorDTO> getAuthors(){
+        List<AuthorEntity> authors = authorServiceImpl.getAuthors();
+        return authors.stream().map(authorMapper::mapTo).toList();
     }
 }

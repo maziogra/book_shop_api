@@ -5,6 +5,9 @@ import com.maziogra.book_api.repositories.AuthorRepository;
 import com.maziogra.book_api.services.AuthorService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.StreamSupport;
+
 @Service
 public class AuthorServiceImpl implements AuthorService {
 
@@ -18,4 +21,14 @@ public class AuthorServiceImpl implements AuthorService {
     public AuthorEntity save(AuthorEntity authorEntity) {
         return authorRepository.save(authorEntity);
     }
+
+    @Override
+    public List<AuthorEntity> getAuthors() {
+        return StreamSupport.stream(
+                authorRepository.findAll()
+                        .spliterator(),
+                        false)
+                .toList();
+    }
+
 }
