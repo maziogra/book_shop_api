@@ -45,11 +45,21 @@ public class AuthorController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity deleteAuthorById(@PathVariable Long id){
+    public ResponseEntity<HttpStatus> deleteAuthorById(@PathVariable(value = "id") Long id){
         if(!authorServiceImpl.isExists(id)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         authorServiceImpl.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<AuthorDTO> fullEditAuthor(@PathVariable(value = "id") Long id, @RequestBody AuthorDTO authorDTO){
+        if(!authorServiceImpl.isExists(id)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        authorDTO.setId(id);
+        AuthorEntity authorEntity = authorServiceImpl.save(authorMapper.mapFrom(authorDTO));
+        return ResponseEntity.ok(authorMapper.mapTo(authorEntity));
     }
 }
