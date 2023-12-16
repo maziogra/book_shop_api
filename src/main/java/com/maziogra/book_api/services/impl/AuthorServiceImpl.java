@@ -3,9 +3,7 @@ package com.maziogra.book_api.services.impl;
 import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.repositories.AuthorRepository;
 import com.maziogra.book_api.services.AuthorService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,4 +47,12 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.existsById(id);
     }
 
+    @Override
+    public AuthorEntity partialEdit(AuthorEntity authorEntity) {
+        return authorRepository.findById(authorEntity.getId()).map(author -> {
+            Optional.ofNullable(authorEntity.getName()).ifPresent(author::setName);
+            Optional.ofNullable(authorEntity.getAge()).ifPresent(author::setAge);
+            return authorRepository.save(author);
+        }).orElseThrow(() -> new RuntimeException("Cannot found the author"));
+    }
 }
