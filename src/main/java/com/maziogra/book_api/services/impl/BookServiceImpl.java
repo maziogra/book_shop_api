@@ -6,6 +6,7 @@ import com.maziogra.book_api.services.BookService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -29,5 +30,10 @@ public class BookServiceImpl implements BookService {
                                 .spliterator(),
                         false)
                 .toList();
+    }
+
+    @Override
+    public Optional<BookEntity> getBookById(Long id) {
+        return bookRepository.findById(id);
     }
 }

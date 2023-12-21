@@ -1,6 +1,7 @@
 package com.maziogra.book_api.controllers;
 
 
+import com.maziogra.book_api.domain.DTO.AuthorDTO;
 import com.maziogra.book_api.domain.DTO.BookDTO;
 import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.domain.entities.BookEntity;
@@ -56,5 +57,14 @@ public class BookController {
     public List<BookDTO> getBooks(){
         List<BookEntity> books = bookServiceImpl.getBooks();
         return books.stream().map(bookMapper::mapTo).toList();
+    }
+
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<BookDTO> getBookById(@PathVariable(value = "id") Long id){
+        Optional<BookEntity> bookEntity = bookServiceImpl.getBookById(id);
+        return bookEntity.map(book -> {
+            BookDTO bookDTO = bookMapper.mapTo(book);
+            return new ResponseEntity<>(bookDTO, HttpStatus.FOUND);
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
