@@ -11,4 +11,8 @@ public interface BookService {
     List<BookEntity> getBooks();
 
     Optional<BookEntity> getBookById(Long id);
+
+    boolean isExists(Long id);
+
+    void delete(Long id);
 }

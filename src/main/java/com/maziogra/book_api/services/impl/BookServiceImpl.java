@@ -36,4 +36,14 @@ public class BookServiceImpl implements BookService {
     public Optional<BookEntity> getBookById(Long id) {
         return bookRepository.findById(id);
     }
+
+    @Override
+    public boolean isExists(Long id) {
+            return bookRepository.existsById(id);
+    }
+
+    @Override
+    public void delete(Long id) {
+        bookRepository.deleteById(id);
+    }
 }

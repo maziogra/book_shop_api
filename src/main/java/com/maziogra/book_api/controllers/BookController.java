@@ -67,4 +67,13 @@ public class BookController {
             return new ResponseEntity<>(bookDTO, HttpStatus.FOUND);
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<HttpStatus> deleteBooksById(@PathVariable(value = "id") Long id){
+        if(!bookServiceImpl.isExists(id)){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        bookServiceImpl.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
