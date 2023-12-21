@@ -9,11 +9,9 @@ import com.maziogra.book_api.services.impl.AuthorServiceImpl;
 import com.maziogra.book_api.services.impl.BookServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -52,5 +50,11 @@ public class BookController {
         }
         BookEntity savedBook = bookServiceImpl.save(bookEntity);
         return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public List<BookDTO> getBooks(){
+        List<BookEntity> books = bookServiceImpl.getBooks();
+        return books.stream().map(bookMapper::mapTo).toList();
     }
 }
