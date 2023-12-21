@@ -1,7 +1,6 @@
 package com.maziogra.book_api.controllers;
 
 
-import com.maziogra.book_api.domain.DTO.AuthorDTO;
 import com.maziogra.book_api.domain.DTO.BookDTO;
 import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.domain.entities.BookEntity;
@@ -31,26 +30,12 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO){
-        BookEntity bookEntity;
-        if(bookDTO.getAuthor().getId() != null && authorService.isExists(bookDTO.getAuthor().getId())){
-            Optional<AuthorEntity> existingAuthorOptional = authorService.getAuthorById(bookDTO.getAuthor().getId());
-            AuthorEntity existingAuthor = existingAuthorOptional.orElseGet(() ->
-                    authorService.save(new AuthorEntity(
-                            bookDTO.getAuthor().getId(),
-                            bookDTO.getAuthor().getName(),
-                            bookDTO.getAuthor().getAge())));
-            bookEntity = BookEntity.builder()
-                    .title(bookDTO.getTitle())
-                    .authorEntity(existingAuthor)
-                    .build();
-        } else{
-            if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            bookEntity = bookMapper.mapFrom(bookDTO);
+        BookEntity bookEntity = authorCheck(bookDTO);
+        if(bookEntity == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         BookEntity savedBook = bookServiceImpl.save(bookEntity);
-        return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
+        return new ResponseEntity<>(bookMapper.mapTo(savedBook), HttpStatus.OK);
     }
 
     @GetMapping
@@ -75,5 +60,41 @@ public class BookController {
         }
         bookServiceImpl.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<BookDTO> fullEditBook(@PathVariable(value = "id") Long id, @RequestBody BookDTO bookDTO){
+        BookEntity bookEntity = authorCheck(bookDTO);
+        if(bookEntity == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if(!bookServiceImpl.isExists(id)){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        bookEntity.setId(id);
+        bookEntity = bookServiceImpl.save(bookEntity);
+        return ResponseEntity.ok(bookMapper.mapTo(bookEntity));
+    }
+
+    public BookEntity authorCheck(BookDTO bookDTO){
+        BookEntity bookEntity;
+        if(bookDTO.getAuthor().getId() != null && authorService.isExists(bookDTO.getAuthor().getId())){
+            Optional<AuthorEntity> existingAuthorOptional = authorService.getAuthorById(bookDTO.getAuthor().getId());
+            AuthorEntity existingAuthor = existingAuthorOptional.orElseGet(() ->
+                    authorService.save(new AuthorEntity(
+                            bookDTO.getAuthor().getId(),
+                            bookDTO.getAuthor().getName(),
+                            bookDTO.getAuthor().getAge())));
+            bookEntity = BookEntity.builder()
+                    .title(bookDTO.getTitle())
+                    .authorEntity(existingAuthor)
+                    .build();
+            return bookEntity;
+        } else{
+            if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
+                return null;
+            }
+        }
+        return bookMapper.mapFrom(bookDTO);
     }
 }
