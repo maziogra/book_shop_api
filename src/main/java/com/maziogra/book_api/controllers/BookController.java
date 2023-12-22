@@ -30,12 +30,23 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO){
-        BookEntity bookEntity = authorCheck(bookDTO);
-        if(bookEntity == null){
+        AuthorEntity authorEntity;
+        BookEntity bookEntity;
+        if(authorService.isExists(bookDTO.getAuthor().getId())){
+            authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
+                    .orElseThrow(() -> new RuntimeException("Cannot find author"));
+        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else{
+            authorEntity = authorService.save(AuthorEntity.builder()
+                    .name(bookDTO.getAuthor().getName())
+                    .age(bookDTO.getAuthor().getAge())
+                    .build());
         }
-        BookEntity savedBook = bookServiceImpl.save(bookEntity);
-        return new ResponseEntity<>(bookMapper.mapTo(savedBook), HttpStatus.OK);
+        bookEntity = bookMapper.mapFrom(bookDTO);
+        bookEntity.setAuthorEntity(authorEntity);
+        bookEntity = bookServiceImpl.save(bookEntity);
+        return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
     }
 
     @GetMapping
@@ -64,37 +75,27 @@ public class BookController {
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<BookDTO> fullEditBook(@PathVariable(value = "id") Long id, @RequestBody BookDTO bookDTO){
-        BookEntity bookEntity = authorCheck(bookDTO);
-        if(bookEntity == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        AuthorEntity authorEntity;
+        BookEntity bookEntity;
         if(!bookServiceImpl.isExists(id)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        if(authorService.isExists(bookDTO.getAuthor().getId())){
+            authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
+                    .orElseThrow(() -> new RuntimeException("Cannot find author"));
+        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else{
+            authorEntity = authorService.save(AuthorEntity.builder()
+                    .name(bookDTO.getAuthor().getName())
+                    .age(bookDTO.getAuthor().getAge())
+                    .build());
+        }
+        bookEntity = bookMapper.mapFrom(bookDTO);
         bookEntity.setId(id);
+        bookEntity.setAuthorEntity(authorEntity);
         bookEntity = bookServiceImpl.save(bookEntity);
-        return ResponseEntity.ok(bookMapper.mapTo(bookEntity));
+        return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
     }
 
-    public BookEntity authorCheck(BookDTO bookDTO){
-        BookEntity bookEntity;
-        if(bookDTO.getAuthor().getId() != null && authorService.isExists(bookDTO.getAuthor().getId())){
-            Optional<AuthorEntity> existingAuthorOptional = authorService.getAuthorById(bookDTO.getAuthor().getId());
-            AuthorEntity existingAuthor = existingAuthorOptional.orElseGet(() ->
-                    authorService.save(new AuthorEntity(
-                            bookDTO.getAuthor().getId(),
-                            bookDTO.getAuthor().getName(),
-                            bookDTO.getAuthor().getAge())));
-            bookEntity = BookEntity.builder()
-                    .title(bookDTO.getTitle())
-                    .authorEntity(existingAuthor)
-                    .build();
-            return bookEntity;
-        } else{
-            if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
-                return null;
-            }
-        }
-        return bookMapper.mapFrom(bookDTO);
-    }
 }
