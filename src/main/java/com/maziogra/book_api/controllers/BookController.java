@@ -5,8 +5,8 @@ import com.maziogra.book_api.domain.DTO.BookDTO;
 import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.domain.entities.BookEntity;
 import com.maziogra.book_api.mappers.mapperImpl.BookMapper;
-import com.maziogra.book_api.services.impl.AuthorServiceImpl;
 import com.maziogra.book_api.services.impl.BookServiceImpl;
+import com.maziogra.book_api.utilities.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,30 +18,22 @@ import java.util.Optional;
 @RequestMapping(path = "/books")
 public class BookController {
 
-    private final AuthorServiceImpl authorService;
+    private final Utilities utilities;
     private final BookMapper bookMapper;
     private final BookServiceImpl bookServiceImpl;
 
-    public BookController(AuthorServiceImpl authorService, BookMapper bookMapper, BookServiceImpl bookServiceImpl) {
-        this.authorService = authorService;
+    public BookController(Utilities utilities, BookMapper bookMapper, BookServiceImpl bookServiceImpl) {
+        this.utilities = utilities;
         this.bookMapper = bookMapper;
         this.bookServiceImpl = bookServiceImpl;
     }
 
     @PostMapping
     public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO){
-        AuthorEntity authorEntity;
         BookEntity bookEntity;
-        if(authorService.isExists(bookDTO.getAuthor().getId())){
-            authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
-                    .orElseThrow(() -> new RuntimeException("Cannot find author"));
-        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
+        AuthorEntity authorEntity = utilities.authorInsideBook(bookDTO);
+        if(authorEntity == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else{
-            authorEntity = authorService.save(AuthorEntity.builder()
-                    .name(bookDTO.getAuthor().getName())
-                    .age(bookDTO.getAuthor().getAge())
-                    .build());
         }
         bookEntity = bookMapper.mapFrom(bookDTO);
         bookEntity.setAuthorEntity(authorEntity);
@@ -75,21 +67,13 @@ public class BookController {
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<BookDTO> fullEditBook(@PathVariable(value = "id") Long id, @RequestBody BookDTO bookDTO){
-        AuthorEntity authorEntity;
         BookEntity bookEntity;
         if(!bookServiceImpl.isExists(id)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if(authorService.isExists(bookDTO.getAuthor().getId())){
-            authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
-                    .orElseThrow(() -> new RuntimeException("Cannot find author"));
-        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
+        AuthorEntity authorEntity = utilities.authorInsideBook(bookDTO);
+        if(authorEntity == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else{
-            authorEntity = authorService.save(AuthorEntity.builder()
-                    .name(bookDTO.getAuthor().getName())
-                    .age(bookDTO.getAuthor().getAge())
-                    .build());
         }
         bookEntity = bookMapper.mapFrom(bookDTO);
         bookEntity.setId(id);
