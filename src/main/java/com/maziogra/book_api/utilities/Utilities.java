@@ -19,8 +19,11 @@ public class Utilities {
 
     public AuthorEntity authorInsideBook(BookDTO bookDTO){
         AuthorEntity authorEntity;
-        if(bookDTO.getAuthor().getId() == null)
+        if(bookDTO.getAuthor() == null){
+            return null;
+        } else if(bookDTO.getAuthor().getId() == null){
             bookDTO.getAuthor().setId(-1L);
+        }
         if(authorService.isExists(bookDTO.getAuthor().getId())){
             authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
                     .orElseThrow(() -> new RuntimeException("Cannot find author"));

@@ -46,4 +46,13 @@ public class BookServiceImpl implements BookService {
     public void delete(Long id) {
         bookRepository.deleteById(id);
     }
+
+    @Override
+    public BookEntity partialEdit(BookEntity bookEntity) {
+        return bookRepository.findById(bookEntity.getId()).map(existingBook -> {
+            Optional.ofNullable(bookEntity.getTitle()).ifPresent(existingBook::setTitle);
+            Optional.ofNullable(bookEntity.getAuthorEntity()).ifPresent(existingBook::setAuthorEntity);
+            return bookRepository.save(existingBook);
+        }).orElseThrow(() -> new RuntimeException("Book does not exist"));
+    }
 }

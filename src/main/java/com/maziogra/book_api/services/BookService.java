@@ -15,4 +15,6 @@ public interface BookService {
     boolean isExists(Long id);
 
     void delete(Long id);
+
+    BookEntity partialEdit(BookEntity bookEntity);
 }

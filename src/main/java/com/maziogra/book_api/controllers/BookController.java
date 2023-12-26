@@ -82,4 +82,18 @@ public class BookController {
         return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
     }
 
+    @PatchMapping(path = "/{id}")
+    public ResponseEntity<BookDTO> partialEditBook(@PathVariable(value = "id") Long id, @RequestBody BookDTO bookDTO){
+        BookEntity bookEntity;
+        if(!bookServiceImpl.isExists(id)){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        AuthorEntity authorEntity = utilities.authorInsideBook(bookDTO);
+        bookEntity = bookMapper.mapFrom(bookDTO);
+        bookEntity.setId(id);
+        bookEntity.setAuthorEntity(authorEntity);
+        BookEntity updated = bookServiceImpl.partialEdit(bookEntity);
+        return new ResponseEntity<>(bookMapper.mapTo(updated), HttpStatus.OK);
+    }
+
 }
