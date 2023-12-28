@@ -5,7 +5,6 @@ import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.mappers.mapperImpl.AuthorMapper;
 import com.maziogra.book_api.services.impl.AuthorServiceImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

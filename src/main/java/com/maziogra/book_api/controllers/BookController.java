@@ -5,6 +5,7 @@ import com.maziogra.book_api.domain.DTO.BookDTO;
 import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.domain.entities.BookEntity;
 import com.maziogra.book_api.mappers.mapperImpl.BookMapper;
+import com.maziogra.book_api.services.impl.AuthorServiceImpl;
 import com.maziogra.book_api.services.impl.BookServiceImpl;
 import com.maziogra.book_api.utilities.Utilities;
 import org.springframework.http.HttpStatus;
@@ -21,11 +22,13 @@ public class BookController {
     private final Utilities utilities;
     private final BookMapper bookMapper;
     private final BookServiceImpl bookServiceImpl;
+    private final AuthorServiceImpl authorServiceImpl;
 
-    public BookController(Utilities utilities, BookMapper bookMapper, BookServiceImpl bookServiceImpl) {
+    public BookController(Utilities utilities, BookMapper bookMapper, BookServiceImpl bookServiceImpl, AuthorServiceImpl authorServiceImpl) {
         this.utilities = utilities;
         this.bookMapper = bookMapper;
         this.bookServiceImpl = bookServiceImpl;
+        this.authorServiceImpl = authorServiceImpl;
     }
 
     @PostMapping
@@ -55,6 +58,18 @@ public class BookController {
             return new ResponseEntity<>(bookDTO, HttpStatus.FOUND);
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @GetMapping(path = "/author/{id}")
+    public ResponseEntity<List<BookDTO>> getBooksByAuthor(@PathVariable(value = "id") Long id){
+        Optional<AuthorEntity> authorEntityOptional = authorServiceImpl.getAuthorById(id);
+        if(authorEntityOptional.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        AuthorEntity authorEntity = authorEntityOptional.orElseThrow(() -> new RuntimeException("Cannot found author"));
+        List<BookEntity> books = bookServiceImpl.getBooksByAuthors(authorEntity);
+        return new ResponseEntity<>(books.stream().map(bookMapper::mapTo).toList(), HttpStatus.OK);
+    }
+
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<HttpStatus> deleteBooksById(@PathVariable(value = "id") Long id){

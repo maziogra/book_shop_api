@@ -1,8 +1,6 @@
 package com.maziogra.book_api.services;
 
-import com.maziogra.book_api.domain.DTO.AuthorDTO;
 import com.maziogra.book_api.domain.entities.AuthorEntity;
-import org.springframework.http.HttpStatusCode;
 
 import java.util.List;
 import java.util.Optional;

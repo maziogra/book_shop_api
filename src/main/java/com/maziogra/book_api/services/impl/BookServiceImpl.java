@@ -1,5 +1,6 @@
 package com.maziogra.book_api.services.impl;
 
+import com.maziogra.book_api.domain.entities.AuthorEntity;
 import com.maziogra.book_api.domain.entities.BookEntity;
 import com.maziogra.book_api.repositories.BookRepository;
 import com.maziogra.book_api.services.BookService;
@@ -36,6 +37,12 @@ public class BookServiceImpl implements BookService {
     public Optional<BookEntity> getBookById(Long id) {
         return bookRepository.findById(id);
     }
+
+    @Override
+    public List<BookEntity> getBooksByAuthors(AuthorEntity authorEntity) {
+        return bookRepository.getBookEntitiesByAuthorEntity(authorEntity);
+    }
+
 
     @Override
     public boolean isExists(Long id) {
