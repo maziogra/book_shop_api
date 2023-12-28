@@ -13,4 +13,5 @@ public class AuthorDTO {
     private Long id;
     private String name;
     private Integer age;
+    private Boolean dead;
 }

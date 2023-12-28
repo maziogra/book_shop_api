@@ -27,12 +27,13 @@ public class Utilities {
         if(authorService.isExists(bookDTO.getAuthor().getId())){
             authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
                     .orElseThrow(() -> new RuntimeException("Cannot find author"));
-        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null){
+        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null || bookDTO.getAuthor().getDead() == null){
             return null;
         } else{
             authorEntity = authorService.save(AuthorEntity.builder()
                     .name(bookDTO.getAuthor().getName())
                     .age(bookDTO.getAuthor().getAge())
+                    .dead(bookDTO.getAuthor().getDead())
                     .build());
         }
         return authorEntity;
