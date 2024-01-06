@@ -1,12 +1,13 @@
 package com.maziogra.book_shop_api.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +24,7 @@ public class AuthorEntity {
     private Integer age;
 
     private Boolean dead;
+
+    @ManyToMany(mappedBy = "authors")
+    private Set<BookEntity> books = new HashSet<>();
 }

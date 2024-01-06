@@ -1,9 +1,15 @@
 package com.maziogra.book_shop_api.utilities;
 
+import com.maziogra.book_shop_api.domain.DTO.AuthorDTO;
 import com.maziogra.book_shop_api.domain.DTO.BookDTO;
 import com.maziogra.book_shop_api.domain.entities.AuthorEntity;
 import com.maziogra.book_shop_api.services.impl.AuthorServiceImpl;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class Utilities {
@@ -13,25 +19,24 @@ public class Utilities {
         this.authorService = authorService;
     }
 
-    public AuthorEntity authorInsideBook(BookDTO bookDTO){
+    public Set<AuthorEntity> authorInsideBook(BookDTO bookDTO){
         AuthorEntity authorEntity;
-        if(bookDTO.getAuthor() == null){
-            return null;
-        } else if(bookDTO.getAuthor().getId() == null){
-            bookDTO.getAuthor().setId(-1L);
+        List<AuthorDTO> authorDTOs = new ArrayList<>(bookDTO.getAuthors());
+        Set<AuthorEntity> authors = new HashSet<>();
+        for(AuthorDTO author : authorDTOs){
+            if(author == null){
+                return null;
+            } else if(author.getId() == null){
+                return null;
+            }
+            if(authorService.isExists(author.getId())){
+                authorEntity = authorService.getAuthorById(author.getId())
+                        .orElseThrow(() -> new RuntimeException("Cannot find author"));
+            } else{
+                return null;
+            }
+            authors.add(authorEntity);
         }
-        if(authorService.isExists(bookDTO.getAuthor().getId())){
-            authorEntity = authorService.getAuthorById(bookDTO.getAuthor().getId())
-                    .orElseThrow(() -> new RuntimeException("Cannot find author"));
-        } else if(bookDTO.getAuthor().getName() == null || bookDTO.getAuthor().getAge() == null || bookDTO.getAuthor().getDead() == null){
-            return null;
-        } else{
-            authorEntity = authorService.save(AuthorEntity.builder()
-                    .name(bookDTO.getAuthor().getName())
-                    .age(bookDTO.getAuthor().getAge())
-                    .dead(bookDTO.getAuthor().getDead())
-                    .build());
-        }
-        return authorEntity;
+        return authors;
     }
 }

@@ -1,6 +1,5 @@
 package com.maziogra.book_shop_api.services.impl;
 
-import com.maziogra.book_shop_api.domain.entities.AuthorEntity;
 import com.maziogra.book_shop_api.domain.entities.BookEntity;
 import com.maziogra.book_shop_api.repositories.BookRepository;
 import com.maziogra.book_shop_api.services.BookService;
@@ -39,12 +38,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookEntity> getBooksByAuthors(AuthorEntity authorEntity) {
-        return bookRepository.getBookEntitiesByAuthorEntity(authorEntity);
-    }
-
-
-    @Override
     public boolean isExists(Long id) {
             return bookRepository.existsById(id);
     }
@@ -58,7 +51,7 @@ public class BookServiceImpl implements BookService {
     public BookEntity partialEdit(BookEntity bookEntity) {
         return bookRepository.findById(bookEntity.getId()).map(existingBook -> {
             Optional.ofNullable(bookEntity.getTitle()).ifPresent(existingBook::setTitle);
-            Optional.ofNullable(bookEntity.getAuthorEntity()).ifPresent(existingBook::setAuthorEntity);
+            Optional.ofNullable(bookEntity.getAuthors()).ifPresent(existingBook::setAuthors);
             return bookRepository.save(existingBook);
         }).orElseThrow(() -> new RuntimeException("Book does not exist"));
     }
