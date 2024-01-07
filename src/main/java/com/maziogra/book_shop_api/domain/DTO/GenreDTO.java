@@ -10,15 +10,13 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthorDTO {
+public class GenreDTO {
     private Long id;
     private String name;
-    private Integer age;
-    private Boolean dead;
     @JsonIgnore
     private Set<BookDTO> books;
     @JsonIgnore
     public boolean isNull(){
-        return (this.getName() == null) || (this.getAge() == null) || (this.getDead() == null);
+        return (this.getName() == null);
     }
 }

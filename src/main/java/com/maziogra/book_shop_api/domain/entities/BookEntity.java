@@ -3,7 +3,7 @@ package com.maziogra.book_shop_api.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -18,7 +18,11 @@ public class BookEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
 
     @ManyToMany
     @JoinTable(
@@ -26,5 +30,13 @@ public class BookEntity {
             joinColumns = {@JoinColumn(name = "book_id")},
             inverseJoinColumns = {@JoinColumn(name = "author_id")}
     )
-    private Set<AuthorEntity> authors = new HashSet<>();
+    private Set<AuthorEntity> authors;
+
+    @ManyToMany
+    @JoinTable(
+            name = "books_genres",
+            joinColumns = {@JoinColumn(name = "book_id")},
+            inverseJoinColumns = {@JoinColumn(name = "genre_id")}
+    )
+    private Set<GenreEntity> genres;
 }

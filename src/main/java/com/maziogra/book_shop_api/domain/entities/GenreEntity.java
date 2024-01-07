@@ -6,15 +6,14 @@ import lombok.*;
 
 import java.util.Set;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "authors")
-public class AuthorEntity {
-
+@Table(name = "genres")
+public class GenreEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,13 +21,7 @@ public class AuthorEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "age")
-    private Integer age;
-
-    @Column(name = "dead")
-    private Boolean dead;
-
-    @ManyToMany(mappedBy = "authors")
+    @ManyToMany(mappedBy = "genres")
     @JsonIgnore
     private Set<BookEntity> books;
 }

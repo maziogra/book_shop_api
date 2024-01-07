@@ -3,6 +3,7 @@ package com.maziogra.book_shop_api.services.impl;
 import com.maziogra.book_shop_api.domain.entities.AuthorEntity;
 import com.maziogra.book_shop_api.repositories.AuthorRepository;
 import com.maziogra.book_shop_api.services.AuthorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +11,10 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
+@RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
-
-    public AuthorServiceImpl(AuthorRepository authorRepository) {
-        this.authorRepository = authorRepository;
-    }
 
     @Override
     public AuthorEntity save(AuthorEntity authorEntity) {
@@ -52,6 +50,7 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.findById(authorEntity.getId()).map(author -> {
             Optional.ofNullable(authorEntity.getName()).ifPresent(author::setName);
             Optional.ofNullable(authorEntity.getAge()).ifPresent(author::setAge);
+            Optional.ofNullable(authorEntity.getDead()).ifPresent(author::setDead);
             return authorRepository.save(author);
         }).orElseThrow(() -> new RuntimeException("Cannot found the author"));
     }

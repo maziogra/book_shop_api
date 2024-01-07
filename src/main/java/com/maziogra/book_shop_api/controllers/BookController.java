@@ -4,9 +4,11 @@ package com.maziogra.book_shop_api.controllers;
 import com.maziogra.book_shop_api.domain.DTO.BookDTO;
 import com.maziogra.book_shop_api.domain.entities.AuthorEntity;
 import com.maziogra.book_shop_api.domain.entities.BookEntity;
+import com.maziogra.book_shop_api.domain.entities.GenreEntity;
 import com.maziogra.book_shop_api.mappers.mapperImpl.BookMapper;
 import com.maziogra.book_shop_api.services.impl.BookServiceImpl;
 import com.maziogra.book_shop_api.utilities.Utilities;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,35 +19,35 @@ import java.util.Set;
 
 @RestController
 @RequestMapping(path = "/books")
+@RequiredArgsConstructor
 public class BookController {
 
     private final Utilities utilities;
     private final BookMapper bookMapper;
     private final BookServiceImpl bookServiceImpl;
 
-    public BookController(Utilities utilities, BookMapper bookMapper, BookServiceImpl bookServiceImpl) {
-        this.utilities = utilities;
-        this.bookMapper = bookMapper;
-        this.bookServiceImpl = bookServiceImpl;
-    }
-
     @PostMapping
     public ResponseEntity<BookDTO> createBook(@RequestBody BookDTO bookDTO){
+        if(bookDTO.isNull()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         BookEntity bookEntity;
         Set<AuthorEntity> authors = utilities.authorInsideBook(bookDTO);
-        if(authors == null){
+        Set<GenreEntity> genres = utilities.genreInsideBook(bookDTO);
+        if(authors == null || genres == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         bookEntity = bookMapper.mapFrom(bookDTO);
         bookEntity.setAuthors(authors);
+        bookEntity.setGenres(genres);
         bookEntity = bookServiceImpl.save(bookEntity);
         return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
     }
 
     @GetMapping
-    public List<BookDTO> getBooks(){
+    public ResponseEntity<List<BookDTO>> getBooks(){
         List<BookEntity> books = bookServiceImpl.getBooks();
-        return books.stream().map(bookMapper::mapTo).toList();
+        return ResponseEntity.ok(books.stream().map(bookMapper::mapTo).toList());
     }
 
     @GetMapping(path = "/{id}")
@@ -59,7 +61,7 @@ public class BookController {
 
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<HttpStatus> deleteBooksById(@PathVariable(value = "id") Long id){
+    public ResponseEntity<HttpStatus> deleteBookById(@PathVariable(value = "id") Long id){
         if(!bookServiceImpl.isExists(id)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -73,13 +75,18 @@ public class BookController {
         if(!bookServiceImpl.isExists(id)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        if(bookDTO.isNull()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         Set<AuthorEntity> authors = utilities.authorInsideBook(bookDTO);
-        if(authors == null){
+        Set<GenreEntity> genres = utilities.genreInsideBook(bookDTO);
+        if(authors == null || genres == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         bookEntity = bookMapper.mapFrom(bookDTO);
         bookEntity.setId(id);
         bookEntity.setAuthors(authors);
+        bookEntity.setGenres(genres);
         bookEntity = bookServiceImpl.save(bookEntity);
         return new ResponseEntity<>(bookMapper.mapTo(bookEntity), HttpStatus.OK);
     }
@@ -91,9 +98,11 @@ public class BookController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Set<AuthorEntity> authors = utilities.authorInsideBook(bookDTO);
+        Set<GenreEntity> genres = utilities.genreInsideBook(bookDTO);
         bookEntity = bookMapper.mapFrom(bookDTO);
         bookEntity.setId(id);
         bookEntity.setAuthors(authors);
+        bookEntity.setGenres(genres);
         BookEntity updated = bookServiceImpl.partialEdit(bookEntity);
         return new ResponseEntity<>(bookMapper.mapTo(updated), HttpStatus.OK);
     }
